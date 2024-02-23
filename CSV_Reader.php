@@ -9,10 +9,10 @@
     $conn = new mysqli($servername, $username, $password, $database);
 
 
-    $sql = "SELECT MAX(OrderID) AS max_order FROM order_contain";
+    $sql = "SELECT MAX(OrderID) AS last_order FROM orders";
     $result = $conn->query($sql);
     $row = $result->fetch_assoc();
-    $orderid = $row["max_order"] + 1;
+    $orderid = $row["last_order"] + 1;
 
 
 $csvFile = fopen('importfile_order_645e2833da9a3db27a8b45f2.csv', 'r');
@@ -30,7 +30,7 @@ while (($array = fgetcsv($csvFile)) !== false) {
     $klantid; 
     $OrderID = $orderid;
 
-    $stmt = $conn->prepare("INSERT INTO order_contain (Barcode, Aantal, OrderID, ArtikelNummer, Maat) VALUES (?, ?, ?, ?, ?)");
+    $stmt = $conn->prepare("INSERT INTO orders (Barcode, Aantal, OrderID, ArtikelNummer, Maat) VALUES (?, ?, ?, ?, ?)");
     $stmt->bind_param("sssss", $barcode, $voorraad, $OrderID, $artikel, $maat);
     
     $stmt->execute();
