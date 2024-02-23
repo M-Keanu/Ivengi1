@@ -1,14 +1,14 @@
 <?php
 
 //Keanu
-//Connection with Gmail account
-$hostname = '{imap.gmail.com:993/imap/ssl}INBOX';
-$username = 'vista.challenge@gmail.com';
-$password = 'Vist@2024!';
+//Connection with mail account (IMAP)
+$hostname = '{imap.gmx.net:993/imap/ssl}INBOX';
+$username = 'e-mailadres';
+$password = '';
 
-$inbox = imap_open($hostname, $username, $password) or die('Cannot connect to Gmail: ' . imap_last_error());
+$inbox = imap_open($hostname, $username, $password) or die('Cannot connect to mail account: ' . imap_last_error());
 
-//Fetch e-mails from Gmail
+//Fetch e-mails
 $emails = imap_search($inbox, 'ALL');
 
 foreach ($emails as $email_number) {
