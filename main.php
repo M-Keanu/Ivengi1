@@ -3,8 +3,8 @@
 //Keanu
 //Connection with mail account (IMAP)
 $hostname = '{imap.gmx.net:993/imap/ssl}INBOX';
-$username = 'e-mailadres';
-$password = '';
+$username = 'vista.challenge@gmx.net';
+$password = 'Vist@2024!';
 
 $inbox = imap_open($hostname, $username, $password) or die('Cannot connect to mail account: ' . imap_last_error());
 
