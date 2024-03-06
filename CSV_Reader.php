@@ -1,48 +1,71 @@
 <?php
 
-    // verbind met de database
     $servername = "localhost";
     $username = "root";
     $password = "";
     $database = "db_csv_program";
     
     $conn = new mysqli($servername, $username, $password, $database);
+    
+    
+    
+    
+    
+    
+    
+    $Emailadress = "kjennoa@gmail.com";    
 
-    // kijkt in de database wat de laatste orderID is en maakt de nieuwe aan
     $sql = "SELECT MAX(OrderID) AS last_order FROM orders";
     $result = $conn->query($sql);
     $row = $result->fetch_assoc();
     $orderid = $row["last_order"] + 1;
 
-//opend het bestand
-$csvFile = fopen('importfile_order_645e2833da9a3db27a8b45f2.csv', 'r');
+    $sql = "SELECT KlantID FROM emails WHERE Email = ? ";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $Emailadress);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    $klantid = $row["KlantID"];
 
 
-//haalt de eerste rij met de namen uit de file
+switch($klantid){
+    case 1:
+        $csvFile = fopen('importfile_order_645e2833da9a3db27a8b45f2.csv', 'r');
+        break;
+    case 2:
+        $csvFile = fopen('importfile_order_603fd92fb30e5f465a8b4578.csv', 'r');
+        break;
+}
+
+
+
 fgetcsv($csvFile);
 
-//zolang als dat er nog een rij in het bestand zit blijft hij opnieuw de code uitvoeren
 while (($array = fgetcsv($csvFile)) !== false) {
-    // stopt de belangerijke stukken uit de array in variabelen
-    $artikel = $array[0];
-    $voorraad = $array[4];
-    $maat = $array[3];
-    $barcode = $array[6];
-    $klantid; 
-    $OrderID = $orderid;
+    switch ($klantid) {
+        case 1:
+            $aantal = $array[4];
+            $barcode = $array[6];
+            $OrderID = $orderid;
+            $klantid = $klantid;
+            $stmt = $conn->prepare("INSERT INTO orders (OrderID,Barcode, Aantal,KlantID) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("ssss", $OrderID, $barcode, $aantal,$klantid);
+            $stmt->execute();
+            $stmt->close();
+            break;
+        case 2:
+            $aantal = $array[6];
+            $barcode = $array[4];
+            $OrderID = $orderid;
+            $klantid = $klantid;
 
-    //stopt de data in de database
-    $stmt = $conn->prepare("INSERT INTO orders (Barcode, Aantal, OrderID, ArtikelNummer, Maat) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("sssss", $barcode, $voorraad, $OrderID, $artikel, $maat);
-    
-    //voert de code uit
-    $stmt->execute();
-    $stmt->close();
-    
-    $artikel = "";
-    $voorraad = "";
-    $maat = "";
-    $barcode = "";
+            $stmt = $conn->prepare("INSERT INTO orders (OrderID,Barcode, Aantal,KlantID) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("ssss", $OrderID, $barcode, $aantal,$klantid);
+            $stmt->execute();
+            $stmt->close();
+            break;
+    }
     
 }
 
