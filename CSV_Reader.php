@@ -6,27 +6,30 @@
     $database = "db_csv_program";
     
     $conn = new mysqli($servername, $username, $password, $database);
-    
-    
-    
-    
-    
-    
-    
-    $Emailadress = "kjennoa@gmail.com";    
 
-    $sql = "SELECT MAX(OrderID) AS last_order FROM orders";
-    $result = $conn->query($sql);
-    $row = $result->fetch_assoc();
-    $orderid = $row["last_order"] + 1;
-
-    $sql = "SELECT KlantID FROM emails WHERE Email = ? ";
+    $Emailadress = "kjennoa@gmail.com"; 
+    
+    $sql = "SELECT KlantID FROM klanten WHERE Email = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $Emailadress);
     $stmt->execute();
     $result = $stmt->get_result();
     $row = $result->fetch_assoc();
     $klantid = $row["KlantID"];
+    
+    
+    $stmt = $conn->prepare("INSERT INTO orders (KlantID) VALUES (?)");
+    $stmt->bind_param("s",$klantid);
+    $stmt->execute();
+    $stmt->close();
+
+    $sql = "SELECT MAX(OrderNummer) AS last_order FROM orders";
+    $result = $conn->query($sql);
+    $row = $result->fetch_assoc();
+    $ordernummer= $row["last_order"];
+    
+
+
 
 
 switch($klantid){
@@ -47,21 +50,20 @@ while (($array = fgetcsv($csvFile)) !== false) {
         case 1:
             $aantal = $array[4];
             $barcode = $array[6];
-            $OrderID = $orderid;
+            $OrderNummer = $ordernummer;
             $klantid = $klantid;
-            $stmt = $conn->prepare("INSERT INTO orders (OrderID,Barcode, Aantal,KlantID) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("ssss", $OrderID, $barcode, $aantal,$klantid);
+            $stmt = $conn->prepare("INSERT INTO orderline (OrderNummer,Barcode, Aantal) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $OrderNummer, $barcode, $aantal);
             $stmt->execute();
             $stmt->close();
             break;
         case 2:
             $aantal = $array[6];
             $barcode = $array[4];
-            $OrderID = $orderid;
+            $OrderNummer = $ordernummer;
             $klantid = $klantid;
-
-            $stmt = $conn->prepare("INSERT INTO orders (OrderID,Barcode, Aantal,KlantID) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("ssss", $OrderID, $barcode, $aantal,$klantid);
+            $stmt = $conn->prepare("INSERT INTO orderline (OrderNummer,Barcode, Aantal) VALUES (?, ?, ?)");
+            $stmt->bind_param("sss", $OrderNummer, $barcode, $aantal);
             $stmt->execute();
             $stmt->close();
             break;
