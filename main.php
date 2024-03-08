@@ -1,25 +1,26 @@
 <?php
 
-require 'vendor/autoload.php';
-
 //Keanu
+
+require 'vendor/autoload.php'; //Request PHPMailer > composer file
+
+//Check for emails and fetch emails from mail account
+
 //Connection with mail account (IMAP)
 $hostname = '{imap.gmx.net:993/imap/ssl}INBOX';
 $username = 'vista.challenge@gmx.net';
 $password = 'Vist@2024!';
 
+//Open mail box and check for e-mails, otherwise echo error message
 $inbox = imap_open($hostname, $username, $password) or die('Cannot connect to mail account: ' . imap_last_error());
 
-//Fetch e-mails
-$emails = imap_search($inbox, 'ALL');
+//Sender email address(es) filter
+$specificEmailAddress = 'example@example.com';
 
-// foreach ($emails as $email_number) {
-//     $overview = imap_fetch_overview($inbox, $email_number, 0);
-//     echo 'Subject: ' . $overview[0]->subject . '<br>';
-//     echo "From: " . $overview->from[0] . '<br>';
-//     echo "Message: " . $overview->message[0] . '<br><br>';
-// }
+//Fetch emails from the email address(es) specified above
+$emails = imap_search($inbox, 'FROM "'.$specificEmailAddress.'"');
 
+//Echo information in emails: subject, from, message
 if ($emails) 
 {
     $output = '';
@@ -37,6 +38,7 @@ imap_close($inbox);
 
 
 //Send e-mail
+
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
@@ -52,17 +54,17 @@ try {
     $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
     $mail->Port       = 587;
 
-    $mail->setFrom('vista.challenge@gmx.net', 'Vista');
-    $mail->addAddress('vista.challenge@gmx.net', 'Send mail test');
+    $mail->setFrom('vista.challenge@gmx.net', 'Vista'); //From email address
+    $mail->addAddress('vista.challenge@gmx.net', 'Send mail test'); //To email address
 
     $mail->isHTML(true);
-    $mail->Subject = 'Test mail';
-    $mail->Body    = 'Dit is een test e-mail';
+    $mail->Subject = 'Test mail'; //Email subject
+    $mail->Body    = 'Dit is een test e-mail'; //Email message
 
     $mail->send();
-    echo 'Email has been sent';
+    echo 'Email has been sent'; //Notification when email is sent
 } catch (Exception $e) {
-    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}"; //Notification when email is not sent
 }
 
 ?>
