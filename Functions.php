@@ -9,10 +9,10 @@ function DBConnection(){
     $conn = new mysqli($servername, $username, $password, $database);
     return $conn;
 }
-    $conn = DBConnection();
-    $Emailadress = "kjennoa@gmail.com"; 
+$conn = DBConnection();
+$Emailadress = "kjennoa@gmail.com"; 
 
-function CSVREADER($conn,$Emailadress){
+function CSVREADER($conn,$Emailadress,$csvFile){
 
     $sql = "SELECT KlantID FROM klanten WHERE Email = ?";
     $stmt = $conn->prepare($sql);
@@ -25,27 +25,18 @@ function CSVREADER($conn,$Emailadress){
     $stmt = $conn->prepare("INSERT INTO orders (KlantID) VALUES (?)");
     $stmt->bind_param("s",$klantid);
     $stmt->execute();
-    $stmt->close();
 
     $sql = "SELECT MAX(OrderNummer) AS last_order FROM orders";
     $result = $conn->query($sql);
     $row = $result->fetch_assoc();
     $ordernummer= $row["last_order"];
     
-    switch($klantid){
-        case 1:
-            $csvFile = fopen('importfile_order_645e2833da9a3db27a8b45f2.csv', 'r');
-            break;
-        case 2:
-            $csvFile = fopen('importfile_order_603fd92fb30e5f465a8b4578.csv', 'r');
-            break;
-    }
 
     fgetcsv($csvFile);
 
     while (($array = fgetcsv($csvFile)) !== false) {
-        switch ($klantid) {
-            case 1:
+        switch ($Emailadress) {
+            case "kjennoa@gmail.com":
                 $aantal = $array[4];
                 $barcode = $array[6];
                 $OrderNummer = $ordernummer;
@@ -55,7 +46,7 @@ function CSVREADER($conn,$Emailadress){
                 $stmt->execute();
                 $stmt->close();
                 break;
-            case 2:
+            case "CSV file 2":
                 $aantal = $array[6];
                 $barcode = $array[4];
                 $OrderNummer = $ordernummer;
@@ -67,8 +58,7 @@ function CSVREADER($conn,$Emailadress){
                 break;
         }
     }
-        fclose($csvFile);
-        $conn->close();
+        fclose($csvFile);  
 } 
 
 function MailID($conn,$messageID){
@@ -89,5 +79,6 @@ function MailID($conn,$messageID){
         return true;
     } 
 }
+
 ?>
        
