@@ -85,9 +85,14 @@ if ($emailsInInbox) {
                                 elseif($structure->parts[$i]->encoding == 4) { // 4 = QUOTED-PRINTABLE
                                     $attachment = quoted_printable_decode($attachment);
                                 }
-
+                                $filename = $object->value;
                                 // Save the attachment in the folder CSVfile
                                 file_put_contents($folder . DIRECTORY_SEPARATOR . $object->value, $attachment);
+
+                                $csvFilePath = "CSV/" . $filename;
+                                $csvFile = fopen($csvFilePath, "r");
+                                CSVREADER($conn, $Emailadress, $csvFile);
+                                fclose($csvFile);
                             }
                         }
                     }
