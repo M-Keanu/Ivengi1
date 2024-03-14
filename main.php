@@ -6,7 +6,7 @@ include 'Functions.php';
 $hostname = '{imap.gmx.net:993/imap/ssl}INBOX';
 $username = 'vista.challenge@gmx.net';
 $password = 'Ch2lleng3!';
-$conn = DBConnection();
+
 // Establishing connection to the IMAP server
 $inbox = imap_open($hostname, $username, $password) or die('Cannot connect to mail account: ' . imap_last_error());
 
@@ -19,26 +19,29 @@ while ($row = $result->fetch_assoc()) {
     $emails[] = $row['Email'];
 }
 
+// Initialize an empty array to store search results
 $emailsInInbox = array();
 
+// Search for emails from each registered email address separately
 foreach ($emails as $email) {
     $search_criteria = 'FROM "' . $email . '"';
     $results = imap_search($inbox, $search_criteria);
     
+    // Merge search results
     if ($results !== false) {
         $emailsInInbox = array_merge($emailsInInbox, $results);
     }
 }
 
+// Deduplicate the search results
 $emailsInInbox = array_unique($emailsInInbox);
 
-$output = '';
+$output = ''; // Define the output variable outside the loop
 
 // Fetch information in emails: subject, from, message, and message ID
 if ($emailsInInbox) {
     $output = '';
     foreach ($emailsInInbox as $email_number) {
-<<<<<<< HEAD
         $email_number = (int) $email_number; //Make sure $email_number is an integer
         $header = imap_fetchheader($inbox, $email_number); // Fetch email headers
         
@@ -84,60 +87,15 @@ if ($emailsInInbox) {
                                 // Save the attachment in the folder CSVfile
                                 file_put_contents($folder . DIRECTORY_SEPARATOR . $object->value, $attachment);
                             }
-=======
-        if ($email_number > 0) {
-            $header = imap_fetchheader($inbox, $email_number);
-
-            preg_match('/Message-ID:\s*<([^>]*)>/', $header, $matches);
-            $messageID = isset($matches[1]) ? $matches[1] : 'N/A';
-            
-            if(MailID($conn,$messageID)){
-                $headerInfo = imap_headerinfo($inbox, $email_number);
-                $from = $headerInfo->from[0];
-                $from_email = $from->mailbox . "@" . $from->host;
-    
-                $subject = isset($headerInfo->subject) ? imap_utf8($headerInfo->subject) : 'N/A';
-    
-                $output .= 'Subject: ' . $subject . '<br>';
-                $output .= "From: " . $from_email . '<br>';
-                $output .= "Message ID: " . $messageID . '<br>';
-    
-                $structure = imap_fetchstructure($inbox, $email_number);
-    
-                if (isset($structure->parts) && is_array($structure->parts)) {
-                    $emailBody = '';
-                    foreach ($structure->parts as $partNum => $part) {
-                        if ($part->type == 0) {
-                            $emailBody = imap_fetchbody($inbox, $email_number, $partNum + 1);
-                            break;
->>>>>>> cf3db71581cb3924a2e73376c5a3104b06adb825
                         }
                     }
                 }
-                $CSVFileName = "filename.csv";
-
-                $csvFilePath = "CSV/" . $csvFileName;
-                $csvFile = fopen($csvFilePath, "r");
-                CSVREADER($conn, $Emailadress, $csvFile);
-                fclose($csvFile);
             }
-<<<<<<< HEAD
-=======
-        } 
-        else {
-            echo "Invalid message number: $email_number";
->>>>>>> cf3db71581cb3924a2e73376c5a3104b06adb825
         }
     }
 }
 
-<<<<<<< HEAD
 // Close the IMAP connection
-=======
-echo $output;
-
-
->>>>>>> cf3db71581cb3924a2e73376c5a3104b06adb825
 imap_close($inbox);
 
 
