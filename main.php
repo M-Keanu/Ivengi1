@@ -1,7 +1,7 @@
 <?php
 
 require 'vendor/autoload.php';
-include 'CSV_Reader.php';
+include 'Functions.php';
 
 $hostname = '{imap.gmx.net:993/imap/ssl}INBOX';
 $username = 'vista.challenge@gmx.net';
@@ -47,34 +47,40 @@ if ($emailsInInbox) {
 
             preg_match('/Message-ID:\s*<([^>]*)>/', $header, $matches);
             $messageID = isset($matches[1]) ? $matches[1] : 'N/A';
+            
+            if(MailID($conn,$messageID)){
 
-            $headerInfo = imap_headerinfo($inbox, $email_number);
-            $from = $headerInfo->from[0];
-            $from_email = $from->mailbox . "@" . $from->host;
-
-            $subject = isset($headerInfo->subject) ? imap_utf8($headerInfo->subject) : 'N/A';
-
-            $output .= 'Subject: ' . $subject . '<br>';
-            $output .= "From: " . $from_email . '<br>';
-            $output .= "Message ID: " . $messageID . '<br>';
-
-            $structure = imap_fetchstructure($inbox, $email_number);
-
-            if (isset($structure->parts) && is_array($structure->parts)) {
-                $emailBody = '';
-                foreach ($structure->parts as $partNum => $part) {
-                    if ($part->type == 0) {
-                        $emailBody = imap_fetchbody($inbox, $email_number, $partNum + 1);
-                        break;
+                $headerInfo = imap_headerinfo($inbox, $email_number);
+                $from = $headerInfo->from[0];
+                $from_email = $from->mailbox . "@" . $from->host;
+    
+                $subject = isset($headerInfo->subject) ? imap_utf8($headerInfo->subject) : 'N/A';
+    
+                $output .= 'Subject: ' . $subject . '<br>';
+                $output .= "From: " . $from_email . '<br>';
+                $output .= "Message ID: " . $messageID . '<br>';
+    
+                $structure = imap_fetchstructure($inbox, $email_number);
+    
+                if (isset($structure->parts) && is_array($structure->parts)) {
+                    $emailBody = '';
+                    foreach ($structure->parts as $partNum => $part) {
+                        if ($part->type == 0) {
+                            $emailBody = imap_fetchbody($inbox, $email_number, $partNum + 1);
+                            break;
+                        }
                     }
+    
+                    if ($structure->encoding == 3) {
+                        $emailBody = base64_decode($emailBody);
+                    }
+                    $output .= "Message: " . $emailBody . '<br><br>';
                 }
-
-                if ($structure->encoding == 3) {
-                    $emailBody = base64_decode($emailBody);
-                }
-                $output .= "Message: " . $emailBody . '<br><br>';
             }
-        } else {
+
+
+        } 
+        else {
             // Handle invalid message number
             echo "Invalid message number: $email_number";
         }
@@ -87,9 +93,6 @@ echo $output;
 
 // Close the IMAP connection
 imap_close($inbox);
-
-
-
 
 
 
