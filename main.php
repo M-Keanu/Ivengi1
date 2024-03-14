@@ -6,7 +6,7 @@ include 'Functions.php';
 $hostname = '{imap.gmx.net:993/imap/ssl}INBOX';
 $username = 'vista.challenge@gmx.net';
 $password = 'Ch2lleng3!';
-
+$conn = DBConnection();
 // Establishing connection to the IMAP server
 $inbox = imap_open($hostname, $username, $password) or die('Cannot connect to mail account: ' . imap_last_error());
 
@@ -19,37 +19,30 @@ while ($row = $result->fetch_assoc()) {
     $emails[] = $row['Email'];
 }
 
-// Initialize an empty array to store search results
 $emailsInInbox = array();
 
-// Search for emails from each registered email address separately
 foreach ($emails as $email) {
     $search_criteria = 'FROM "' . $email . '"';
     $results = imap_search($inbox, $search_criteria);
     
-    // Merge search results
     if ($results !== false) {
         $emailsInInbox = array_merge($emailsInInbox, $results);
     }
 }
 
-// Deduplicate the search results
 $emailsInInbox = array_unique($emailsInInbox);
 
-$output = ''; // Define the output variable outside the loop
+$output = '';
 
 if ($emailsInInbox) {
     foreach ($emailsInInbox as $email_number) {
-        // Verify that the message number is valid
         if ($email_number > 0) {
-            // Fetch the email header
             $header = imap_fetchheader($inbox, $email_number);
 
             preg_match('/Message-ID:\s*<([^>]*)>/', $header, $matches);
             $messageID = isset($matches[1]) ? $matches[1] : 'N/A';
             
             if(MailID($conn,$messageID)){
-
                 $headerInfo = imap_headerinfo($inbox, $email_number);
                 $from = $headerInfo->from[0];
                 $from_email = $from->mailbox . "@" . $from->host;
@@ -76,12 +69,15 @@ if ($emailsInInbox) {
                     }
                     $output .= "Message: " . $emailBody . '<br><br>';
                 }
+                $CSVFileName = "filename.csv";
+
+                $csvFilePath = "CSV/" . $csvFileName;
+                $csvFile = fopen($csvFilePath, "r");
+                CSVREADER($conn, $Emailadress, $csvFile);
+                fclose($csvFile);
             }
-
-
         } 
         else {
-            // Handle invalid message number
             echo "Invalid message number: $email_number";
         }
     }
@@ -91,7 +87,7 @@ if ($emailsInInbox) {
 
 echo $output;
 
-// Close the IMAP connection
+
 imap_close($inbox);
 
 
