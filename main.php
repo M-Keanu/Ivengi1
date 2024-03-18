@@ -89,7 +89,7 @@ if ($emailsInInbox) {
                                 // Save the attachment in the folder CSVfile
                                 file_put_contents($folder . DIRECTORY_SEPARATOR . $object->value, $attachment);
 
-                                $csvFilePath = "CSV/" . $filename;
+                                $csvFilePath = "CSVfile/" . $filename;
                                 $csvFile = fopen($csvFilePath, "r");
                                 CSVREADER($conn, $Emailadress, $csvFile);
                                 fclose($csvFile);
@@ -111,33 +111,10 @@ imap_close($inbox);
 
 // Send e-mail
 
-// use PHPMailer\PHPMailer\PHPMailer;
-// use PHPMailer\PHPMailer\SMTP;
-// use PHPMailer\PHPMailer\Exception;
 
-// $mail = new PHPMailer(true);
 
-// try {
-//     $mail->SMTPDebug = 2; // Enable verbose debugging
-//     $mail->isSMTP();
-//     $mail->Host = 'mail.gmx.net'; // SMTP server
-//     $mail->SMTPAuth = true;
-//     $mail->Username = 'vista.challenge@gmx.net';
-//     $mail->Password = 'Ch2lleng3!';
-//     $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Use SSL
-//     $mail->Port = 465; // Set the SMTP port for SSL
 
-//     $mail->setFrom('vista.challenge@gmx.net', 'Vista'); // From email address
-//     $mail->addAddress('Kjennoa@gmail.com', 'Send mail test'); // To email address
 
-//     $mail->isHTML(true);
-//     $mail->Subject = 'Test mail'; // Email subject
-//     $mail->Body    = 'This is a test email'; // Email message
 
-//     $mail->send();
-//     echo 'Email has been sent'; // Notification when email is sent
-// } catch (Exception $e) {
-//     echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}"; // Notification when email is not sent
-// }
 
-// ?>
+?>

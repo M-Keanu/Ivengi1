@@ -1,4 +1,7 @@
 <?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
 
 function DBConnection(){
     $servername = "localhost";
@@ -82,6 +85,30 @@ function MailID($conn,$messageID){
         return true;
     } 
 }
+function MailSender($Mailadress,$MailSubject,$MailMessage){
+    $mail = new PHPMailer(true);
+try {
+    $mail->SMTPDebug = 2; // Enable verbose debugging
+    $mail->isSMTP();
+    $mail->Host = 'mail.gmx.net'; // SMTP server
+    $mail->SMTPAuth = true;
+    $mail->Username = 'vista.challenge@gmx.net';
+    $mail->Password = 'Ch2lleng3!';
+    $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Use SSL
+    $mail->Port = 465; // Set the SMTP port for SSL
 
+    $mail->setFrom('vista.challenge@gmx.net',"gebruikte mail"); // From email address
+    $mail->addAddress($Mailadress); // To email address
+
+    $mail->isHTML(true);
+    $mail->Subject = $MailSubject; // Email subject
+    $mail->Body    = $MailMessage; // Email message
+
+    $mail->send();
+    echo 'Email has been sent'; // Notification when email is sent
+} catch (Exception $e) {
+    echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}"; // Notification when email is not sent
+}
+}
 ?>
        
