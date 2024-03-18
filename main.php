@@ -107,14 +107,9 @@ if ($emailsInInbox) {
 imap_close($inbox);
 
 
-
-
-// Send e-mail
-
-
-
-
-
+$EmailSubject = "Bestelling Bevestiging";
+$EmailMessage = "Je bestelling is bevestigd.";
+MailSender($Emailadress,$EmailSubject,$EmailMessage);
 
 
 ?>
